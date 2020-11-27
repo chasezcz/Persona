@@ -11,3 +11,7 @@ __pycache__/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# data
+data/models
+data/origin
+data/tmp
