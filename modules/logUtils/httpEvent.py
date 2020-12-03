@@ -86,41 +86,31 @@ class HttpEvent(object):
             self.port,
             self.vpnip
         ])
-        # return "{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(
-        # # return "{0},{1}-{2},{3},{4},{5}:{6}\n".format(
-        #     # self.date.strftime('%Y-%m-%d %H:%M:%S.%f'),
-        #     self.timestamp,
-        #     self.userId,
-        #     self.name,
-        #     self.url,
-        #     self.parameterName,
-        #     self.parameterValue,
-        #     self.header,
-        #     self.ip,
-        #     self.port)
-
-        # return "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}".format(
-        # return "{0},{1}-{2},{3},{4},{5}:{6}\n".format(
-            # self.date.strftime('%Y-%m-%d %H:%M:%S.%f'),
-            # self.timestamp,
-            # self.threadId,
-            # self.institutionId,
-            # self.userId,
-            # self.url,
-            # self.method,
-            # self.method,
-            # self.statusCode,
-            # self.parameterType,
-            # self.parameterName,
-            # self.parameterValue,
-            # self.header,
-            # self.ip,
-            # self.port,
-            # self.vpnip
-            # )
+        
+    def getSet(self):
+        """
+        Gets all valid data for the current instance in sequence.
+        """
+        sep = getValue("sep")
+        return [
+            str(self.timestamp),
+            self.threadId,
+            self.institutionId,
+            self.userId,
+            self.url,
+            self.method,
+            self.statusCode,
+            self.parameterType,
+            self.parameterName,
+            self.parameterValue.replace(sep, ""),
+            self.header,
+            self.ip,
+            self.port,
+            self.vpnip
+        ]
 
 
-labels = getValue("sep").join([
+TABLE_LABELS = [
     "timestamp",
     "threadId",
     "institutionId",
@@ -135,4 +125,4 @@ labels = getValue("sep").join([
     "ip",
     "port",
     "vpnip"
-])
+]
