@@ -1,0 +1,5 @@
+{
+    "input": "data/origin",
+    "output": "data/tmp",
+    "sep": ",,,"
+}
