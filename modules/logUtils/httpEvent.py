@@ -82,6 +82,7 @@ class HttpEvent(object):
             self.parameterName,
             self.parameterValue.replace(sep, ""),
             self.header,
+            self.name,
             self.ip,
             self.port,
             self.vpnip
@@ -104,6 +105,7 @@ class HttpEvent(object):
             self.parameterName,
             self.parameterValue.replace(sep, ""),
             self.header,
+            self.name,
             self.ip,
             self.port,
             self.vpnip
@@ -122,6 +124,7 @@ TABLE_LABELS = [
     "parameterName",
     "parameterValue",
     "header",
+    "name",
     "ip",
     "port",
     "vpnip"
