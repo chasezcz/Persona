@@ -2,5 +2,7 @@
     "input": "data/origin",
     "output": "data/tmp",
     "sep": "^",
-    "reGenerateBaseDataSet": false
+    "reGenerateBaseDataSet": false,
+    "dev": true,
+    "sessionThreshold": 120
 }

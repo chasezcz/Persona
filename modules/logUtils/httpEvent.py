@@ -104,7 +104,7 @@ class HttpEvent(object):
         """
         sep = getValue("sep")
         return [
-            str(self.timestamp),
+            self.timestamp,
             self.threadId,
             self.institutionId,
             self.userId,
@@ -122,7 +122,7 @@ class HttpEvent(object):
         ]
 
 
-TABLE_LABELS = [
+HE_TABLE_LABELS = [
     "timestamp",
     "threadId",
     "institutionId",

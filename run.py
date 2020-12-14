@@ -13,8 +13,10 @@ import logging as log
 import pandas as pd
 
 from modules.logger.logger import init as logInit
-from modules.logUtils.httpEvent import HttpEvent, TABLE_LABELS
+from modules.logUtils.httpEvent import HttpEvent, HE_TABLE_LABELS
+from modules.logUtils.session import Session, SESSION_TABLE_LABELS
 from modules.logUtils.urlFilter import urlConvert
+from modules.fileUtils.jsonUtils import writeJson, readJson
 from modules.fileUtils.fileUtils import getFilesByPath
 from modules.config.argumentParser import argumentParser
 from modules.config.configParser import getValue as getValueFromConfig
@@ -22,7 +24,7 @@ from modules.config.configParser import getValue as getValueFromConfig
 # CONFIG
 LOG_LEVEL = log.DEBUG
 
-def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.csv"):
+def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.csv")-> (pd.DataFrame, dict):
     """
     Run the collector to structurally extract all the log files in "RAW_DATA_PATH"
     """
@@ -30,12 +32,19 @@ def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.cs
     # get all files.
     files = getFilesByPath(input)
     if not files: 
-        print("there no any file. recorrect the input path.")
-        return None
+        log.error("there no any file. recorrect the input path.")
+        return None, None, None
     
     # IF SMIPLY WRITE TO CSV
     # with open(os.path.join(output, "", "tmp.csv"), "w", encoding="utf-8") as target:
     #     target.write(TABLE_LABELS+'\n')
+    # END
+
+    # DEV MODE
+    if getValueFromConfig("dev") == True:
+        import random
+        files = random.sample(files, 20)
+        log.info("get number of files is {0}".format(len(files)))
     # END
 
     if (not os.path.exists(baseDataSet)) or (os.path.exists(baseDataSet) and getValueFromConfig("reGenerateBaseDataSet")):
@@ -59,45 +68,65 @@ def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.cs
             log.info("{0} write {1} lines".format(file, count))
         
         # convert List to DataFrame
-        df = pd.DataFrame(data = data, columns = TABLE_LABELS)
+        df = pd.DataFrame(data = data, columns = HE_TABLE_LABELS)
         del data
 
         # delete log which is bugs
         df = df.drop(index=(df.loc[(df.name=='何群辉')].index))
         # delete unused log
-        df = df.drop(index=(df.loc[(df.header=="null")].index))
+        df = df.drop(index=(df.loc[(df.headers=="null")].index))
         # delete unused column
         df = df.drop(['threadId', 'statusCode', 'parameterType'], axis=1)
 
         # convert all urls
-        df['url'] = df['url'].apply(urlConvert, args=(set(df.userId.values), set(df.institutionId.values),  set(df.name.values),))
+        df.url = df.url.apply(urlConvert, args=(set(df.userId.values), set(df.institutionId.values),  set(df.name.values),))
         
-        # Sort by userId primary key, with time as the secondary key
-        df.sort_values(by=['userId', 'timestamp'])
-
         # save to CSV
         df.to_csv(baseDataSet, sep=getValueFromConfig("sep"))
-        return df
+
+        # get url index map
+        urlSet = set(df.url.values)
+        urlToIndex = {url:i.__str__() for i, url in enumerate(urlSet)}
+        urlIndexToUrl = {i.__str__():url for i, url in enumerate(urlSet)}
+        log.info("url count: {0}".format(len(urlSet)))
+        if not os.path.exists('data/url'):
+            os.makedirs('data/url')
+
+        writeJson("data/url/urlToIndex.json", urlToIndex)
+        writeJson("data/url/urlIndexToUrl.json", urlIndexToUrl)
+
+        return df, urlToIndex, urlIndexToUrl
     else:
-        df = pd.read_csv(baseDataSet, sep=getValueFromConfig("sep"))
-        return df
+        df = pd.read_csv(baseDataSet, sep=getValueFromConfig("sep"), index_col=[0])
+        return df, readJson("data/url/urlToIndex.json"), readJson("data/url/urlIndexToUrl.json")
 
-def combineSessions(baseDF):
+def combineSessions(baseDF, urlToIndex)->pd.DataFrame:
     """
-    There are three tasks: 
-        1. identify the internal session and generate the SessionID based on the previously generated baseDataset;
-        2. Convert url to ID to generate the mapping table of URL to urlIdx;
-        3. Generate URL jump sequence table.
+    Identify the internal session and generate the SessionID based on the previously generated baseDataset;
     """
-    return 1
+    threshold = getValueFromConfig("sessionThreshold")
+    sessions = []
+    for userId, indexs in baseDF.groupby('userId').groups.items():
+        log.debug("cur combine session of {0}".format(userId))
+        tmpSessions = Session.generateSession(baseDF.loc[indexs].copy(), urlToIndex, threshold)
+        sessions.extend(tmpSessions)
+        
 
-
-if '__name__' == '__main__':
-
-    args = argumentParser()
-    logInit(LOG_LEVEL)
+    sessionDF = pd.DataFrame(data=sessions, columns=SESSION_TABLE_LABELS)
     
-    baseDF = collectLogs(args.inputDataPath, args.baseDataSet)
+    return sessionDF
 
-    finalDF = combineSessions(baseDF)
-    print(baseDF.shape, finalDF.shape)
+
+
+if __name__ == "__main__":
+    logInit(LOG_LEVEL)
+    args = argumentParser()
+    pd.set_option('display.float_format', lambda x: '%.3f' % x)
+
+    baseDF, urlToIndex, urlIndexToUrl = collectLogs(args.inputDataPath, args.baseDataSet)
+    sessionDF = combineSessions(baseDF, urlToIndex)
+    del(baseDF)
+    print(sessionDF)
+    print(len(sessionDF))
+
+
