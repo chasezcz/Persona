@@ -1,5 +1,6 @@
 {
     "input": "data/origin",
     "output": "data/tmp",
-    "sep": ",,,"
+    "sep": "^",
+    "reGenerateBaseDataSet": false
 }

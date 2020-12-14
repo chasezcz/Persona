@@ -15,6 +15,10 @@ def argumentParser():
     """    
     parser = argparse.ArgumentParser(usage="it's usage tip.", description="help info.")
     parser.add_argument("--input", help="where the origin data.", dest="inputDataPath", default="data/origin")
-    parser.add_argument("--output", help="where the dataset output.", dest="outputDataPath", default="data/tmp")
+    parser.add_argument("--baseDataSet", help="where the dataset output.", dest="baseDataSet", default="data/tmp")
+    parser.add_argument("--reGenerateBaseDataSet", help="rebuild baseDataSet", dest="reGenerateBaseDataSet", default=False)
     args = parser.parse_args()
+    
+
+    
     return args
