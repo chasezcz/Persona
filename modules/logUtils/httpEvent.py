@@ -51,19 +51,29 @@ class HttpEvent(object):
         
         
         # select log version
-        if content[len(content) - 1].isalnum():
-            # last pos is port
-            parameterValueEnd = len(content) - 5
-            self.vpnip = "0"
-        else:
+        if "." in content[-1] and isNumber(content[-2]):
             # last pos is vpn ip
+
             self.vpnip = content[-1]
+            self.port = content[-2]
             parameterValueEnd = len(content) - 6
+        elif "." in content[-1]:
+            # last pos is ip
+
+            self.vpnip = "0"
+            self.port = "0"
+            parameterValueEnd = len(content) - 4
+        else:
+            # last pos is port
+
+            self.vpnip = "0"   
+            self.port = content[-1]
+            parameterValueEnd = len(content) - 5
+           
         self.parameterValue = " ".join(content[15:parameterValueEnd+1])
         self.header = content[parameterValueEnd+1]
         self.name = content[parameterValueEnd+2]
         self.ip = content[parameterValueEnd+3]
-        self.port = content[parameterValueEnd+4]
 
     def simplyPrint(self):
         """
@@ -129,3 +139,19 @@ TABLE_LABELS = [
     "port",
     "vpnip"
 ]
+
+def isNumber(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+ 
+    try:
+        import unicodedata
+        unicodedata.numeric(s)
+        return True
+    except (TypeError, ValueError):
+        pass
+ 
+    return False
