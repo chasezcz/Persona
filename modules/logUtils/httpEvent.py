@@ -71,7 +71,7 @@ class HttpEvent(object):
             parameterValueEnd = len(content) - 5
            
         self.parameterValue = " ".join(content[15:parameterValueEnd+1])
-        self.header = content[parameterValueEnd+1]
+        self.headers = content[parameterValueEnd+1]
         self.name = content[parameterValueEnd+2]
         self.ip = content[parameterValueEnd+3]
 
@@ -91,7 +91,7 @@ class HttpEvent(object):
             self.parameterType,
             self.parameterName,
             self.parameterValue.replace(sep, ""),
-            self.header,
+            self.headers,
             self.name,
             self.ip,
             self.port,
@@ -114,7 +114,7 @@ class HttpEvent(object):
             self.parameterType,
             self.parameterName,
             self.parameterValue.replace(sep, ""),
-            self.header,
+            self.headers,
             self.name,
             self.ip,
             self.port,
@@ -133,7 +133,7 @@ TABLE_LABELS = [
     "parameterType",
     "parameterName",
     "parameterValue",
-    "header",
+    "headers",
     "name",
     "ip",
     "port",

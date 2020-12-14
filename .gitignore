@@ -15,6 +15,7 @@ __pycache__/
 data/models
 data/origin
 data/tmp
+data/url
 
 # nohup
 **/nohup.out
