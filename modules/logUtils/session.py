@@ -13,6 +13,9 @@ import logging as log
 from modules.api.iplocation import getCitysByIPs
 
 SESSION_TABLE_LABELS = [
+    "userId",
+    "name",
+    "institutionId",
     "urls",
     "ips",
     "startTime",
@@ -27,10 +30,13 @@ class Session(object):
     emmmmmmmmmmmmmmmmm
     """
 
-    def __init__(self, hes):
+    def __init__(self, hes, ipLocation: bool):
         """
         docstring
         """
+        self.userId = hes[0].userId
+        self.name = hes[0].name
+        self.institutionId = hes[0].institutionId
         self.urls = []
         timestamps = []
         self.citys = set()
@@ -43,13 +49,17 @@ class Session(object):
         # Units are seconds
         self.startTime = timestamps[0]
         self.endTime = timestamps[-1]
-        self.citys = getCitysByIPs(self.ips)
+        if ipLocation:
+            self.citys = getCitysByIPs(self.ips)
         self.heNumber = len(self.urls)
 
         self.aveageHETime = sum([timestamps[i]-timestamps[i-1] for i in range(1, len(timestamps))]) / self.heNumber
   
     def getSet(self):
         return [
+            self.userId,
+            self.name,
+            self.institutionId,
             "-".join(self.urls),
             "-".join(self.ips),
             self.startTime,
@@ -60,7 +70,7 @@ class Session(object):
         ]
         
     @staticmethod
-    def generateSession(hes: pd.DataFrame, urlToIndex, threshold)->list:
+    def generateSession(hes: pd.DataFrame, urlToIndex, threshold, ipLocation)->list:
         """
         Used to divide sessions into separate sessions in an unordered pile of logs.
         """
@@ -90,7 +100,7 @@ class Session(object):
             if not flag and float(he.timestamp) - lastHEDate > threshold:
                 # start a new session
                 if paths:
-                    session = Session(paths)
+                    session = Session(paths, ipLocation)
                     sessions.append(session.getSet())
                     # sessions.append("-".join([urlToIndex[url] for url in paths]))
                 paths.clear()
@@ -100,7 +110,7 @@ class Session(object):
             paths.append(he)
             lastHEDate = he.timestamp
         
-        session = Session(paths)
+        session = Session(paths, ipLocation)
         sessions.append(session.getSet())
         # sessions.append("-".join([urlToIndex[url] for url in paths]))
         return sessions

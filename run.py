@@ -100,22 +100,29 @@ def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.cs
         df = pd.read_csv(baseDataSet, sep=getValueFromConfig("sep"), index_col=[0])
         return df, readJson("data/url/urlToIndex.json"), readJson("data/url/urlIndexToUrl.json")
 
-def combineSessions(baseDF, urlToIndex)->pd.DataFrame:
+def combineSessions(baseDF, urlToIndex, ipLocation)->pd.DataFrame:
     """
     Identify the internal session and generate the SessionID based on the previously generated baseDataset;
     """
     threshold = getValueFromConfig("sessionThreshold")
     sessions = []
+    
     for userId, indexs in baseDF.groupby('userId').groups.items():
         log.debug("cur combine session of {0}".format(userId))
-        tmpSessions = Session.generateSession(baseDF.loc[indexs].copy(), urlToIndex, threshold)
+        tmpSessions = Session.generateSession(baseDF.loc[indexs].copy(), urlToIndex, threshold, ipLocation)
         sessions.extend(tmpSessions)
-        
-
+    
     sessionDF = pd.DataFrame(data=sessions, columns=SESSION_TABLE_LABELS)
     
     return sessionDF
 
+
+def combineUserBySession(sessionDF: pd.DataFrame):
+    """
+    docstring
+    """
+    group = sessionDF.groupby(by='userId')
+    return ""
 
 
 if __name__ == "__main__":
@@ -124,9 +131,13 @@ if __name__ == "__main__":
     pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
     baseDF, urlToIndex, urlIndexToUrl = collectLogs(args.inputDataPath, args.baseDataSet)
-    sessionDF = combineSessions(baseDF, urlToIndex)
+    
+    sessionDF = combineSessions(baseDF, urlToIndex, args.iplocation)
     del(baseDF)
-    print(sessionDF)
+    log.info(sessionDF)
+
+    userDF = combineUserBySession(sessionDF)
+    
     print(len(sessionDF))
 
 
