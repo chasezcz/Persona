@@ -44,6 +44,8 @@ def getCitysByIPs(IPs: list)->list:
             city = getLocationFromNet(ip)
         log.debug("ip: city %s" % city)
         citys.add(city)
+    if len(citys) > 1 and PRIVATE_RANGE in citys:
+        citys.remove(PRIVATE_RANGE)
     return citys
 
 def getLocationFromNet(ip: str)->str:

@@ -22,9 +22,9 @@ from modules.config.argumentParser import argumentParser
 from modules.config.configParser import getValue as getValueFromConfig
 
 # CONFIG
-LOG_LEVEL = log.DEBUG
+LOG_LEVEL = log.INFO
 
-def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.csv")-> (pd.DataFrame, dict):
+def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.csv", randomSample=False)-> (pd.DataFrame, dict):
     """
     Run the collector to structurally extract all the log files in "RAW_DATA_PATH"
     """
@@ -41,7 +41,7 @@ def collectLogs(input=getValueFromConfig("input"), baseDataSet="data/tmp/full.cs
     # END
 
     # DEV MODE
-    if getValueFromConfig("dev") == True:
+    if randomSample:
         import random
         files = random.sample(files, 20)
         log.info("get number of files is {0}".format(len(files)))
@@ -116,28 +116,40 @@ def combineSessions(baseDF, urlToIndex, ipLocation)->pd.DataFrame:
     
     return sessionDF
 
-
 def combineUserBySession(sessionDF: pd.DataFrame):
     """
     docstring
     """
-    group = sessionDF.groupby(by='userId')
-    return ""
+    # delete unused column
+    userDF = sessionDF.drop(['urls', "startTime", "endTime"], axis=1)
 
+    def combine(x):
+        p = set(x.tolist())
+        return ','.join(p)
+
+    userDF = userDF.groupby(by=['userId']).agg({
+        'name': [combine],
+        'aveageHETime': ['mean'],
+        'ips': [combine],
+        'citys': [combine]
+    })
+    return userDF
 
 if __name__ == "__main__":
     logInit(LOG_LEVEL)
     args = argumentParser()
     pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
-    baseDF, urlToIndex, urlIndexToUrl = collectLogs(args.inputDataPath, args.baseDataSet)
+    baseDF, urlToIndex, urlIndexToUrl = collectLogs(args.inputDataPath, args.baseDataSet, args.randomSample)
     
     sessionDF = combineSessions(baseDF, urlToIndex, args.iplocation)
     del(baseDF)
-    log.info(sessionDF)
+    log.debug("SESSION DATAFRAME")
+    log.debug(sessionDF)
 
     userDF = combineUserBySession(sessionDF)
-    
-    print(len(sessionDF))
-
+    log.debug("USER DATAFRAME")
+    log.debug(userDF)
+    log.info(userDF.filter([('name', 'combine'), ('citys', 'combine')])[:20])
+    log.info(userDF[userDF['name']['combine']=='石小文'])
 

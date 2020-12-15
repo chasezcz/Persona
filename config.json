@@ -3,6 +3,6 @@
     "output": "data/tmp",
     "sep": "^",
     "reGenerateBaseDataSet": false,
-    "dev": true,
+    "dev": false,
     "sessionThreshold": 120
 }

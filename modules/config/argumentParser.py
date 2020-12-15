@@ -18,8 +18,9 @@ def argumentParser():
     parser.add_argument("--baseDataSet", help="where the dataset output.", dest="baseDataSet", default="data/tmp/baseDataSet.csv")
     parser.add_argument("--reGenerateBaseDataSet", help="rebuild baseDataSet", dest="reGenerateBaseDataSet", default=False)
     parser.add_argument("--iplocation", help="is check ip location, about city.", dest='iplocation', default=False)
+    parser.add_argument("--randomSample", help="random sample, about sample.", dest='randomSample', default=False)
+    
     args = parser.parse_args()
     
-
     
     return args
