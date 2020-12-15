@@ -117,14 +117,6 @@ def combineSessions(baseDF, urlToIndex, ipLocation)->pd.DataFrame:
     return sessionDF
 
 
-def combineUserBySession(sessionDF: pd.DataFrame):
-    """
-    docstring
-    """
-    group = sessionDF.groupby(by='userId')
-    return ""
-
-
 if __name__ == "__main__":
     logInit(LOG_LEVEL)
     args = argumentParser()
@@ -136,8 +128,6 @@ if __name__ == "__main__":
     del(baseDF)
     log.info(sessionDF)
 
-    userDF = combineUserBySession(sessionDF)
-    
-    print(len(sessionDF))
-
+    dataset = sessionDF.urls.value_counts()
+    dataset.to_csv("data/dataset/paths.csv")
 

@@ -15,7 +15,8 @@ __pycache__/
 data/models
 data/origin
 data/tmp
-data/url
+data/url/ipLocationCache.json
+
 
 # nohup
 **/nohup.out
