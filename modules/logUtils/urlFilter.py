@@ -16,11 +16,11 @@ class TemplateUrl(object):
 # num > THRESHOULD，这就是一个固定模板 
  # TODO:
     
-
-
 def urlConvert(url: str, users, instituteIds, names)->str:
     # filter url
     subs = url.split('/')
+    if len(subs) > 4:
+        subs = subs[:4]
     for i, sub in enumerate(subs):
         if sub == "" or i == 0: continue
         if sub in users: subs[i] = "userId"

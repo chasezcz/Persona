@@ -89,6 +89,12 @@ class Session(object):
         hes.url = hes.url.apply(lambda x: urlToIndex[x])
 
         for he in hes.itertuples():
+            # if same operation
+            if paths and he.url == paths[-1] and float(he.timestamp) - lastHEDate < 1:
+                lastHEDate = he.timestamp
+                continue
+
+
             #  get session key in headers
             headersJSON = json.loads(he.headers)
             flag = False
