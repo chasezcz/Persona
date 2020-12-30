@@ -12,11 +12,7 @@ __pycache__/
 .ipynb_checkpoints
 
 # data
-data/models
-data/origin
-data/tmp
-data/url/ipLocationCache.json
-
+data
 
 # nohup
 **/nohup.out
