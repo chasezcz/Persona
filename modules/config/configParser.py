@@ -9,23 +9,23 @@
 # here put the import lib
 import json
 
-def getAll():
+def getAll(filepath):
     """
     Get all config value
     """
-    with open("config.json", "r", encoding="utf-8") as target:
+    with open(filepath, "r", encoding="utf-8") as target:
         return json.load(target)
 
-def getValue(key):
-    config = getAll()
+def getValue(key, filepath="config.json"):
+    config = getAll(filepath)
     # print(type(config))
     return config[key] if key in config else None
 
-def putValue(key, value):
+def putValue(key, value, filepath="config.json"):
     """
     Add or update value of config json.
     """
-    config = getAll()
+    config = getAll(filepath)
     config[key] = value
     with open("config.json", "w", encoding="utf-8") as target:
         target.write(json.dumps(config))

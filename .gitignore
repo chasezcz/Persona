@@ -12,7 +12,9 @@ __pycache__/
 .ipynb_checkpoints
 
 # data
-data
+data/tmp
+data/dataset
+data/origin
 
 # nohup
 **/nohup.out

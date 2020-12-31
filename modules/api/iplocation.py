@@ -13,6 +13,7 @@ import datetime
 import urllib.request
 import logging as log
 from IPy import IP
+import IP2Location
 from urllib.error import HTTPError
 # Maintain a JSON table, and when there is a query task, 
 # first query the local JSON table whether there is a cache.
@@ -25,6 +26,16 @@ cache = {}
 ipLocationCache = "data/url/ipLocationCache.json"
 # updateThreshold: unit is day day day!
 updateThreshold = 7
+
+def getLocationByBin(ip: str, binPath = "modules/api/IP2LOCATION.BIN"):
+    if IP(ip).iptype() != 'PUBLIC':
+        return PRIVATE_RANGE
+    ip2locObj = IP2Location.IP2Location()
+    ip2locObj.open(binPath)
+    res = ip2locObj.get_all(ip)
+    return res.region
+    # return type(res.region)
+
 
 def getCitysByIPs(IPs: list)->list:
     if len(cache) == 0 and os.path.exists(ipLocationCache):
@@ -155,4 +166,4 @@ if __name__ == "__main__":
     # ipcnAPI('159.226.99.36')
     # print(get_headers(rawHeaders))
     # print(ipcnAPI('159.226.99.36'))
-    pass
+    print(getLocationByBin('159.226.99.36'))

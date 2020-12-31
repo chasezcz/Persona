@@ -8,7 +8,6 @@
 
 # here put the import lib
 import datetime
-from modules.config.configParser import getValue
 
 class HttpEvent(object):
     """
@@ -75,11 +74,10 @@ class HttpEvent(object):
         self.name = content[parameterValueEnd+2]
         self.ip = content[parameterValueEnd+3]
 
-    def simplyPrint(self):
+    def simplyPrint(self, sep):
         """
         supply a method to print all value.
         """
-        sep = getValue("sep")
         return sep.join([
             str(self.timestamp),
             self.threadId,
@@ -98,11 +96,10 @@ class HttpEvent(object):
             self.vpnip
         ])
         
-    def getSet(self):
+    def getSet(self, sep):
         """
         Gets all valid data for the current instance in sequence.
         """
-        sep = getValue("sep")
         return [
             self.timestamp,
             self.threadId,
